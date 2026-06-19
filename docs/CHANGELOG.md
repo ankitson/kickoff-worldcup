@@ -143,3 +143,7 @@ Increased date-axis label text size.
 ### Webby Cleanup
 
 Removed old internal/local Webby entries for the pre-rename app and removed the duplicate internal `kickoff-worldcup` app copy, leaving the public Webby entry as canonical.
+
+### README
+
+Added a minimal README with the Webby preview image and a one-line project description.

@@ -317,3 +317,11 @@ Decisions:
 Verification:
 - Webby listings show `kickoff-worldcup` only under the public bag.
 - Preview files for the app remain only under `/projects/webby/public/.webby-previews/`.
+
+## 2026-06-18 - README Preview
+
+Goal: add a minimal repository README.
+
+Decision:
+- Copy the public Webby preview image into `assets/preview.jpg`.
+- Add `README.md` with the preview image and a one-line project description.
