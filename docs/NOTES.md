@@ -290,3 +290,30 @@ Decisions:
 Verification:
 - New Webby URL loaded at `https://tools.home.ankitson.com/kickoff-worldcup/`.
 - Browser smoke check confirmed the `Kickoff` page renders, Group A appears, and `grass2.jpg` is applied.
+
+## 2026-06-18 - Public Webby Publish
+
+Goal: move `kickoff-worldcup` to the public Webby bag.
+
+Decisions:
+- Rename the table toggle label to `Standings`.
+- Publish the folder app to the public Webby bag with Webby.
+
+Verification:
+- Public Webby publish completed at `https://mini.ankitson.com/kickoff-worldcup/`.
+- Browser smoke check confirmed the `Standings` toggle label and `Kickoff` page render on the public URL.
+- Public preview card generated at `/projects/webby/public/.webby-previews/kickoff-worldcup.jpg`.
+- Removed staged `.git` metadata from Webby public/internal bag copies and redeployed the public bag.
+
+## 2026-06-18 - Webby Bag Cleanup
+
+Goal: keep `kickoff-worldcup` only in the public Webby bag.
+
+Decisions:
+- Remove the old `worldcup-2026-results-timeline` app from internal and local bags.
+- Remove the duplicate `kickoff-worldcup` app from the internal bag.
+- Remove stale internal/local preview images for the old and duplicate app entries.
+
+Verification:
+- Webby listings show `kickoff-worldcup` only under the public bag.
+- Preview files for the app remain only under `/projects/webby/public/.webby-previews/`.

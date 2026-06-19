@@ -180,6 +180,33 @@
         white-space: nowrap;
       }
 
+      .today-jump {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        min-height: 34px;
+        padding: 6px 10px;
+        border: 1px solid #e0b128;
+        background: #fff6c7;
+        color: #6e4a00;
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.74rem;
+        font-weight: 780;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .today-jump[hidden] {
+        display: none;
+      }
+
+      .today-jump-arrow {
+        min-width: 10px;
+        font-size: 0.88rem;
+        line-height: 1;
+      }
+
       .table-toggle input {
         width: 16px;
         height: 16px;
@@ -257,9 +284,9 @@
         position: absolute;
         top: 10px;
         left: 8px;
-        width: 88px;
+        width: 104px;
         color: var(--muted);
-        font-size: 0.78rem;
+        font-size: 0.9rem;
         font-weight: 650;
         white-space: nowrap;
       }
@@ -318,7 +345,7 @@
         min-height: 126px;
         background:
           linear-gradient(rgba(245, 252, 242, 0.66), rgba(245, 252, 242, 0.66)),
-          url("grass2.jpg");
+          url("assets/grass2.jpg");
         background-size:
           100% 100%,
           var(--date-column-width, 292px) auto;
@@ -645,13 +672,17 @@
         <span class="filter-label" id="groupFilterLabel">Group</span>
         <nav class="chips" id="groupFilters" aria-labelledby="groupFilterLabel"></nav>
         <div class="controls">
+          <button class="today-jump" id="todayJump" type="button" hidden>
+            <span class="today-jump-arrow" aria-hidden="true">→</span>
+            <span>TODAY</span>
+          </button>
           <label class="timezone-control">
             Timezone
             <select id="timezoneSelect" aria-label="Timezone"></select>
           </label>
           <label class="table-toggle">
             <input id="showTables" type="checkbox" />
-            Show tables
+            Standings
           </label>
         </div>
       </div>
@@ -744,6 +775,8 @@
         showTables: true,
         timeZoneOffset: getBrowserOffsetMinutes(),
         pendingScroll: null,
+        renderedDateKeys: [],
+        renderedColumnWidth: DATE_COLUMN_WIDTH,
       };
 
       const els = {
@@ -751,6 +784,7 @@
         timeline: document.querySelector("#timeline"),
         timezoneSelect: document.querySelector("#timezoneSelect"),
         showTables: document.querySelector("#showTables"),
+        todayJump: document.querySelector("#todayJump"),
         resultCount: document.querySelector("#resultCount"),
         fixtureCount: document.querySelector("#fixtureCount"),
         liveCount: document.querySelector("#liveCount"),
@@ -818,8 +852,47 @@
         if (scrollSaveFrame) return;
         scrollSaveFrame = requestAnimationFrame(() => {
           scrollSaveFrame = 0;
+          updateTodayJump();
           saveViewState();
         });
+      }
+
+      function todayStartScrollLeft() {
+        const index = state.renderedDateKeys.indexOf(currentDateKey());
+        if (index === -1) return null;
+        return index * state.renderedColumnWidth;
+      }
+
+      function updateTodayJump() {
+        const target = todayStartScrollLeft();
+        const viewport = document.querySelector(".timeline-viewport");
+        if (!els.todayJump || !viewport || target == null) {
+          if (els.todayJump) els.todayJump.hidden = true;
+          return;
+        }
+
+        els.todayJump.hidden = false;
+        const arrow = els.todayJump.querySelector(".today-jump-arrow");
+        const delta = target - viewport.scrollLeft;
+        const comfortStart = viewport.scrollLeft + viewport.clientWidth * 0.18;
+        const comfortEnd = viewport.scrollLeft + viewport.clientWidth * 0.82;
+        if (target >= comfortStart && target <= comfortEnd) {
+          arrow.textContent = "•";
+        } else {
+          arrow.textContent = delta > 0 ? "→" : "←";
+        }
+      }
+
+      function scrollTodayToStart() {
+        const target = todayStartScrollLeft();
+        const viewport = document.querySelector(".timeline-viewport");
+        if (!viewport || target == null) return;
+        viewport.scrollTo({
+          left: target,
+          top: viewport.scrollTop,
+          behavior: "smooth",
+        });
+        requestAnimationFrame(updateTodayJump);
       }
 
       function getBrowserOffsetMinutes() {
@@ -1144,6 +1217,8 @@
 
         const keys = dateRange(visible);
         if (!visible.length || !keys.length) {
+          state.renderedDateKeys = [];
+          updateTodayJump();
           els.timeline.innerHTML = `<div class="empty">No group-stage matches found</div>`;
           els.resultCount.textContent = "0";
           els.fixtureCount.textContent = "0";
@@ -1155,6 +1230,8 @@
 
         const showTables = state.showTables;
         const columnWidth = showTables ? TABLE_DATE_COLUMN_WIDTH : DATE_COLUMN_WIDTH;
+        state.renderedDateKeys = keys;
+        state.renderedColumnWidth = columnWidth;
         const width = Math.max(760, LABEL_WIDTH + keys.length * columnWidth);
         const dateIndexes = new Map(keys.map((key, index) => [key, index]));
         const groups =
@@ -1200,10 +1277,12 @@
               left: viewport.scrollLeft,
               top: viewport.scrollTop,
             });
+            updateTodayJump();
           });
         } else {
           scrollToToday(keys, columnWidth);
         }
+        updateTodayJump();
 
         const results = visible.filter((match) => match.status === "played");
         const fixtures = visible.filter((match) => match.status === "fixture");
@@ -1227,6 +1306,7 @@
           if (!shell) return;
           const x = LABEL_WIDTH + index * columnWidth;
           shell.scrollLeft = Math.max(0, x - shell.clientWidth * 0.22);
+          updateTodayJump();
         });
       }
 
@@ -1287,6 +1367,8 @@
         saveViewState();
         render();
       });
+
+      els.todayJump.addEventListener("click", scrollTodayToStart);
 
       document
         .querySelector(".timeline-viewport")

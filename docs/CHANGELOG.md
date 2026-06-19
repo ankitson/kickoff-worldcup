@@ -125,3 +125,21 @@ Changed the lane background to use only `grass2.jpg`, with a masked dark overlay
 ### Project Rename
 
 Updated the Webby app slug to `kickoff-worldcup` for the project rename.
+
+### Public Publish
+
+Renamed the table visibility toggle from `Show tables` to `Standings`.
+
+Published the app to the public Webby bag and generated the public preview card.
+
+### Today Jump Control
+
+Moved `grass2.jpg` into `assets/` and updated the timeline lane background reference.
+
+Added a compact `TODAY` jump button that points left or right when the current-day line is outside the comfortable viewport area, and shows a dot when today is already visible.
+
+Increased date-axis label text size.
+
+### Webby Cleanup
+
+Removed old internal/local Webby entries for the pre-rename app and removed the duplicate internal `kickoff-worldcup` app copy, leaving the public Webby entry as canonical.
