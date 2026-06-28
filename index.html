@@ -792,6 +792,7 @@
         dateRange: document.querySelector("#dateRange"),
       };
       let scrollSaveFrame = 0;
+      let scrollSaveTimeout = 0;
 
       function validOffset(offset) {
         return OFFSET_TIMEZONES.some((zone) => zone.offset === offset);
@@ -853,8 +854,12 @@
         scrollSaveFrame = requestAnimationFrame(() => {
           scrollSaveFrame = 0;
           updateTodayJump();
-          saveViewState();
         });
+        clearTimeout(scrollSaveTimeout);
+        scrollSaveTimeout = setTimeout(() => {
+          scrollSaveTimeout = 0;
+          saveViewState();
+        }, 250);
       }
 
       function todayStartScrollLeft() {
@@ -1074,12 +1079,12 @@
           <article class="${cardClass}" style="left:${x}px;top:${y}px;--accent:${color}" aria-label="${aria}">
             <div class="match-head"><span class="match-title">${title}${badge}</span><span class="match-time">${formatShortDateTime(match)}</span></div>
             <div class="${homeClass}">
-              <img src="${match.home.flag}" alt="" loading="lazy" />
+              <img src="${match.home.flag}" alt="" width="22" height="22" loading="eager" decoding="async" fetchpriority="low" />
               <span class="team-name">${match.home.name}</span>
               <span class="${homeScoreClass}">${homeScore}</span>
             </div>
             <div class="${awayClass}">
-              <img src="${match.away.flag}" alt="" loading="lazy" />
+              <img src="${match.away.flag}" alt="" width="22" height="22" loading="eager" decoding="async" fetchpriority="low" />
               <span class="team-name">${match.away.name}</span>
               <span class="${awayScoreClass}">${awayScore}</span>
             </div>
@@ -1382,20 +1387,18 @@
       import * as THREE from "./vendor/three.module.js";
 
       const canvas = document.querySelector("#brandBall3d");
-      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
       function initBrandBall() {
         if (!canvas) return;
 
         const renderer = new THREE.WebGLRenderer({
           canvas,
           alpha: true,
-          antialias: true,
-          preserveDrawingBuffer: true,
+          antialias: false,
+          preserveDrawingBuffer: false,
           powerPreference: "low-power",
         });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-        renderer.setSize(96, 96, false);
+        renderer.setPixelRatio(1);
+        renderer.setSize(64, 64, false);
         renderer.outputColorSpace = THREE.SRGBColorSpace;
 
         const scene = new THREE.Scene();
@@ -1407,7 +1410,7 @@
           () => render(),
         );
         texture.colorSpace = THREE.SRGBColorSpace;
-        texture.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 8);
+        texture.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 2);
 
         const ball = new THREE.Mesh(
           new THREE.SphereGeometry(1, 48, 32),
@@ -1447,19 +1450,7 @@
           renderer.render(scene, camera);
         }
 
-        if (reduceMotion) {
-          render();
-          return;
-        }
-
-        function animate() {
-          ball.rotation.y += 0.018;
-          ball.rotation.x -= 0.004;
-          ball.rotation.z += 0.002;
-          render();
-          requestAnimationFrame(animate);
-        }
-        animate();
+        render();
       }
 
       initBrandBall();
