@@ -1,5 +1,43 @@
 # Notes
 
+## 2026-06-28 - Knockout Bracket Tab
+
+### Goal
+
+Add a second app tab for the knockout stage that shows the full elimination bracket with past and future matches, while keeping final group standings visible once on the left.
+
+### Discovery
+
+- FIFA's calendar feed for the same competition/season already includes the live knockout rounds under `StageName`.
+- As of June 28, 2026, the API exposes 32 knockout matches: 16 round-of-32 matches, 8 round-of-16 matches, 4 quarter-finals, 2 semi-finals, the third-place play-off, and the final.
+- The existing app is a single static `index.html`, so the cleanest implementation path was to keep one shared data fetch and split rendering into group-stage and knockout view functions.
+
+### Decision
+
+- Add a top-level `View` tab switcher with `Group Stage` and `Knockout`.
+- Preserve the current group-stage timeline behavior, filters, standings toggle, timezone handling, and scroll persistence as one tab.
+- Build the knockout view from the same FIFA payload, using `PlaceHolderA` and `PlaceHolderB` to draw bracket connections and unresolved future slots.
+- Render one sticky left rail with compact final group standings instead of repeating standings inside the bracket.
+- Bump the saved view-state key to `kickoff-view-state-v2` so the new tab and per-tab scroll state do not conflict with older saved state.
+
+### Verification
+
+- Inline script syntax check passed via `node` after the refactor.
+- Live FIFA payload inspection confirmed knockout stages and current match list for the June 28, 2026 bracket.
+- Headless Chrome smoke attempts failed in this environment with a `Trace/breakpoint trap`, so I could not complete an automated visual browser pass here.
+
+### Next steps
+
+- Do one manual browser pass on both tabs after publish to confirm bracket spacing and sticky standings behavior on desktop and mobile.
+
+### Follow-up
+
+- Internal Webby verification exposed a live runtime bug after deploy: FIFA returns some unresolved knockout fixtures with `Home` or `Away` set to `null`.
+- Hardened match normalization so placeholder knockout slots render without dereferencing `Score`, team names, or flag URLs on null participants.
+- Re-published to the internal bag and re-verified the live page in a browser session on desktop and mobile widths.
+- Reworked the knockout bracket after visual review: fixed card coordinate math so the first column no longer slides under the standings rail, reduced the standings rail to one readable column, strengthened connector lines, and replaced raw FIFA slot codes with winner/loser and group-seeding copy.
+- Reordered the post-semi-final columns so `Third place` appears before `Final`, matching the loser branch before the championship branch in left-to-right reading.
+
 ## 2026-06-18 - World Cup Results Timeline
 
 Goal: create a static Webby-hosted visualization of completed FIFA World Cup 2026 group-stage results.

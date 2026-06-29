@@ -1,5 +1,33 @@
 # Changelog
 
+## 2026-06-28
+
+### Knockout Tab
+
+Added a top-level `View` tab switcher so the app now supports both the existing group-stage timeline and a new knockout-stage bracket.
+
+Changed the FIFA data normalization to keep both group-stage and knockout-stage matches from the same API response, including knockout placeholders, round names, and penalty metadata.
+
+Added a knockout bracket layout that renders round-of-32 through final plus the third-place play-off, showing completed and future matches in one connected elimination view.
+
+Added a sticky left rail of final group standings for all 12 groups so the knockout bracket keeps the group context visible without repeating tables across the board.
+
+Changed view-state persistence to save the active tab and independent scroll positions per tab under a new storage key.
+
+### Knockout Feed Hardening
+
+Changed knockout match normalization to tolerate `null` `Home` or `Away` participants from FIFA's unresolved future fixtures, rendering placeholder slots instead of crashing the page at load time.
+
+### Knockout Bracket Clarity
+
+Fixed knockout card positioning to use card centers instead of left edges, which stopped the first bracket column from overlapping the standings rail and reconnected the SVG flow lines to the cards.
+
+Changed the knockout standings rail to a single readable column and strengthened connector styling for clearer winner/loser progression across rounds.
+
+Replaced raw FIFA slot subtitles such as `W81 vs W82` and `3AEHIJ` with readable winner/loser flow and group-seeding descriptions inside knockout cards.
+
+Reordered the post-semi-final layout so the `Third place` column appears before the `Final` column.
+
 ## 2026-06-18
 
 ### Results Timeline App
